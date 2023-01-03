@@ -3,7 +3,6 @@ from microbit import *
 import power
 
 global timer
-global beepFrame
 global timerLaunched
 global lum
 global frame
@@ -21,19 +20,16 @@ def switch_sound():
     else:
         display.show(Image.NO, wait=False)
 
-def raz(razTimer = True):
+def raz():
     global timer
-    global beepFrame
     global timerLaunched
     global lum
     global frame
     
-    if razTimer:
-        timer = 0
-    beepFrame = 5
+    timer = 0
+    frame = 0
     lum = 0
     timerLaunched = False
-    frame = 0
     display.clear()
 
 def print_time(timer):
@@ -59,28 +55,32 @@ raz()
 
 while True:
 
+    force_refresh = False
     if pin_logo.is_touched():
         raz()
+        power.deep_sleep(wake_on=button_a)
     
     if button_b.was_pressed():
         switch_sound()
 
     if button_a.was_pressed():
-        raz(False)
         if timer == 0:
             timer = TIMER_INC/2 + 5
-        elif timer < 36:
+        elif timer <= TIMER_INC/2 + 5:
             timer = timer + TIMER_INC/2
         else:
             timer = (timer + TIMER_INC) % (4*TIMER_INC);
         timerLaunched = True;
+        force_refresh = True;
 
     if timerLaunched:
             if timer > 0:
-                if frame == 0:
+                if frame == 0 or force_refresh:
                     display.clear()
-                    print_time(timer)
-                    timer = timer - 1
+                    print_time(timer + (1 if force_refresh and frame != 0 else 0))
+                    if frame == 0:
+                        timer = timer - 1
+                    force_refresh = False
                 
                 frame = (frame + 1) % FRAME_FREQ
                 sleep(1000/FRAME_FREQ)
