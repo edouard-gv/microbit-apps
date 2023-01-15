@@ -7,7 +7,7 @@ global timerLaunched
 global lum
 global frame
 global show_sound_status
-is_sound_on = False
+is_sound_on = True
 
 TIMER_INC = 60
 TIMER_DELAY = 1000
@@ -43,7 +43,8 @@ def clean_shutdown():
     display.show(Image.HEART)
     sleep(1000)
     raz()
-    power.deep_sleep(wake_on=button_a)
+    #power.deep_sleep(wake_on=button_a)
+    power.off()
 
 def print_time(timer):
     remaining_sec = (timer - 1) % 10 + 1
@@ -85,7 +86,7 @@ while True:
             show_sound_status = True
             sound_switch_frame = frame
 
-    if button_a.was_pressed():
+    if button_b.was_pressed():
         if timer == 0:
             timer = TIMER_INC/2 + 5
         elif timer <= TIMER_INC/2 + 5:
@@ -95,7 +96,7 @@ while True:
         timerLaunched = True;
         force_refresh = True;
 
-    if button_b.was_pressed():
+    if button_a.was_pressed():
         if timer <= TIMER_INC/2:
             clean_shutdown()
         elif timer <= TIMER_INC:
